@@ -1,0 +1,29 @@
+# Gateway namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gateway-ns
+  labels:
+    shared-gateway-access: "true"
+
+---
+
+# Gateway API configuration
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: gateway-srv
+  namespace: gateway-ns
+spec:
+  gatewayClassName: nginx
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              shared-gateway-access: "true"
+

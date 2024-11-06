@@ -1,0 +1,5 @@
+{
+  "CONTAINER_NAME": "Container 01",
+  "CONTAINER_LABEL": "container-01",
+  "IMAGE": "<container-image>"
+}

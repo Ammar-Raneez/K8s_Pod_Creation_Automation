@@ -1,0 +1,8 @@
+# Plant namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${CONTAINER_LABEL}-ns
+  labels:
+    shared-gateway-access: "true"
+

@@ -1,0 +1,61 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${CONTAINER_LABEL}
+  namespace: ${CONTAINER_LABEL}-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${CONTAINER_LABEL}
+  template:
+    metadata:
+      labels:
+        app: ${CONTAINER_LABEL}
+    spec:
+      containers:
+        - name: ${CONTAINER_LABEL}
+          image: ${IMAGE}
+          env:
+            - name: CONTAINER_NAME
+              value: ${CONTAINER_NAME}
+            - name: CONTAINER_LABEL
+              value: ${CONTAINER_LABEL}
+            - name: GRAFANA_URL
+
+              # Cross-namespace requests. The Grafana service lives in a different namespace from this container.
+              value: http://grafana-srv.grafana-ns.svc.cluster.local:3333
+            - name: MASTER_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: master-connection-string
+                  key: MASTER_CONNECTION_STRING
+            - name: ATLAS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: atlas-connection-string
+                  key: ATLAS_CONNECTION_STRING
+            - name: GRAFANA_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-api-key
+                  key: GRAFANA_API_KEY
+
+---
+
+# ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${CONTAINER_LABEL}-srv
+  namespace: ${CONTAINER_LABEL}-ns
+spec:
+  type: ClusterIP
+  selector:
+    app: ${CONTAINER_LABEL}
+  ports:
+    - name: ccp
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
